@@ -1,0 +1,27 @@
+package thrift.bio.user;
+
+import thrift.bio.protocol.TBinaryProtocol;
+import thrift.bio.protocol.TProtocol;
+import thrift.bio.transport.RDMASocket;
+import thrift.bio.transport.TException;
+import thrift.bio.transport.TSocket;
+import thrift.bio.transport.TTransport;
+
+public class Client {
+    public static void main(String[] args) {
+//        TTransport transport=new TSocket("localhost",7788);
+        TTransport tTransport=new RDMASocket("127.0.0.1","7788");
+        try {
+            tTransport.open();
+            TProtocol protocol = new TBinaryProtocol(tTransport);
+
+            HelloService.Client hi=new HelloService.Client(protocol);
+           String s= hi.hello("12");
+            System.out.println(s);
+
+        } catch (TException e) {
+            e.printStackTrace();
+        }
+
+    }
+}
