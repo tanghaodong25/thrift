@@ -30,12 +30,17 @@ public class RDMASocket extends RDMATransport {
     }
 
     private void connect(){
-        eqService = new EqService(ip, "123456", 1, 32, true).init();
+        eqService = new EqService(ip, port, 1, 32, false).init();
         cqService = new CqService(eqService, eqService.getNativeHandle()).init();
         List<Connection> conList = new CopyOnWriteArrayList<Connection>();
         connectedCallback = new ConnectedCallback(conList, false);
         readCallback = new ReadCallback(false, eqService);
         shutdownCallback = new ShutdownCallback();
+        eqService.setConnectedCallback(connectedCallback);
+        eqService.setRecvCallback(readCallback);
+        eqService.setSendCallback(null);
+        eqService.setShutdownCallback(shutdownCallback);
+        eqService.initBufferPool(32, 65536, 32);
 
     }
 
@@ -47,10 +52,7 @@ public class RDMASocket extends RDMATransport {
     }
 
     public void open(){
-        eqService.setConnectedCallback(connectedCallback);
-        eqService.setRecvCallback(readCallback);
-        eqService.setSendCallback(null);
-        eqService.setShutdownCallback(shutdownCallback);
+
         cqService.start();
         eqService.start();
 
@@ -63,7 +65,13 @@ public class RDMASocket extends RDMATransport {
 
     @Override
     public int read(byte[] buf, int off, int len) throws TTransportException {
-
+        ByteBuffer buffer=ByteBuffer.wrap(buf,off,len);
+        for (Connection con:conList) {
+            RdmaBuffer rdmaBuffer=con.takeSendBuffer(true);
+            long address = buffer.getLong();
+            long rkey = buffer.getLong();
+            return con.read(rdmaBuffer.getRdmaBufferId(), 0, 4096*1024, address, rkey);
+        }
         return 0;
     }
 
@@ -80,14 +88,23 @@ public class RDMASocket extends RDMATransport {
 
 
     @Override
-    public int read(RdmaBuffer buffer) throws IOException {
-
+    public int read(ByteBuffer buffer) throws IOException {
+        for (Connection con:conList) {
+            RdmaBuffer rdmaBuffer=con.takeSendBuffer(true);
+            long address = buffer.getLong();
+            long rkey = buffer.getLong();
+            return con.read(rdmaBuffer.getRdmaBufferId(), 0, 4096*1024, address, rkey);
+        }
         return 0;
     }
 
     @Override
-    public int write(RdmaBuffer buffer) throws IOException {
-
+    public int write(ByteBuffer buffer) throws IOException {
+        for (Connection con:conList) {
+            RdmaBuffer rdmaBuffer = con.takeSendBuffer(true);
+            rdmaBuffer.put(buffer, (byte)0, 10);
+            return con.send(rdmaBuffer.remaining(), rdmaBuffer.getRdmaBufferId());
+        }
         return 0;
     }
 }
