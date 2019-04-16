@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.thrift.TException;
+import org.apache.thrift.transport.TNonblockingTransport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,13 +40,18 @@ import org.slf4j.LoggerFactory;
  */
 public class TAsyncClientManager {
   private static final Logger LOGGER = LoggerFactory.getLogger(TAsyncClientManager.class.getName());
-
+  public TNonblockingTransport tTransport;
   private final SelectThread selectThread;
   private final ConcurrentLinkedQueue<TAsyncMethodCall> pendingCalls = new ConcurrentLinkedQueue<TAsyncMethodCall>();
 
   public TAsyncClientManager() throws IOException {
     this.selectThread = new SelectThread();
     selectThread.start();
+  }
+
+  public TAsyncClientManager(TNonblockingTransport tTransport) {
+    this.tTransport = tTransport;
+    selectThread=null;
   }
 
   public void call(TAsyncMethodCall method) throws TException {

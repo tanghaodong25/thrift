@@ -21,7 +21,7 @@ package org.apache.thrift;
 import org.apache.thrift.protocol.*;
 import org.apache.thrift.async.AsyncMethodCallback;
 
-import org.apache.thrift.server.AbstractNonblockingServer.*;
+import org.apache.thrift.server.RDMATServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,7 @@ public class TBaseAsyncProcessor<I> implements TAsyncProcessor, TProcessor {
         return Collections.unmodifiableMap(processMap);
     }
 
-    public void process(final AsyncFrameBuffer fb) throws TException {
+    public void process(final RDMATServer.AsyncFrameBuffer fb) throws TException {
 
         final TProtocol in = fb.getInputProtocol();
         final TProtocol out = fb.getOutputProtocol();

@@ -135,6 +135,11 @@ public abstract class TAsyncMethodCall<T> {
     sizeBuffer = ByteBuffer.wrap(sizeBufferArray);
   }
 
+  public ByteBuffer getSizeBuffer(){
+    return  sizeBuffer;
+  }
+
+
   /**
    * Register with selector and start first state, which could be either connecting or writing.
    * @throws IOException if register or starting fails

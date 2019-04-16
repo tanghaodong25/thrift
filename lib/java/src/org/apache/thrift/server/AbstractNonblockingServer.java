@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Provides common methods and classes used by nonblocking TServer
  * implementations.
  */
-public abstract class AbstractNonblockingServer extends TServer {
+public abstract class AbstractNonblockingServer extends org.apache.thrift.server.TServer {
   protected final Logger LOGGER = LoggerFactory.getLogger(getClass().getName());
 
   public static abstract class AbstractNonblockingServerArgs<T extends AbstractNonblockingServerArgs<T>> extends AbstractServerArgs<T> {
