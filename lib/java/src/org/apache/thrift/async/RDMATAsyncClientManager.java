@@ -28,10 +28,6 @@ public class RDMATAsyncClientManager extends TAsyncClientManager {
         super(tTransport);
     }
 
-
-
-
-
     public boolean isRunning(){
         if (tTransport!=null){
             System.out.println("running");

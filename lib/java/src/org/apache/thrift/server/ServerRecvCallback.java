@@ -3,7 +3,7 @@ package org.apache.thrift.server;
 import com.intel.hpnl.core.Connection;
 import com.intel.hpnl.core.EqService;
 import com.intel.hpnl.core.Handler;
-import com.intel.hpnl.core.RdmaBuffer;
+import com.intel.hpnl.core.HpnlBuffer;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -19,13 +19,12 @@ public class ServerRecvCallback implements Handler {
     buff=server.new AsyncFrameBuffer();
   }
   public synchronized void handle(Connection con, int rdmaBufferId, int blockBufferSize) {
-    RdmaBuffer sendBuffer=con.takeSendBuffer(true);
+    HpnlBuffer sendBuffer=con.takeSendBuffer(true);
 
-    RdmaBuffer rdmaBuffer=con.getRecvBuffer(rdmaBufferId);
+    HpnlBuffer rdmaBuffer=con.getRecvBuffer(rdmaBufferId);
     ByteBuffer recvByteBuffer = rdmaBuffer.get(blockBufferSize);
     RDMATServer.FrameBuffer frameBuffer=null;
     int framesize=0;
-//    buf.put(recvByteBuffer);
     if (map.get(con)==null){
       map.put(con,buff);
       framesize=recvByteBuffer.getInt(0);
@@ -41,7 +40,7 @@ public class ServerRecvCallback implements Handler {
       Charset charset = Charset.forName("UTF-8");
       System.out.println(new String(b.array(),charset));
       sendBuffer.put(b, (byte)0, 10);
-      con.send(sendBuffer.getRawBuffer().remaining(), sendBuffer.getRdmaBufferId());
+      con.send(sendBuffer.getRawBuffer().remaining(), sendBuffer.getBufferId());
     }
 
 ////    RDMATServer.FrameBuffer buff=map.get(con);
@@ -53,8 +52,8 @@ public class ServerRecvCallback implements Handler {
   RDMATServer.Args arggs;
   private boolean is_server = false;
   private EqService eqService;
-  private RdmaBuffer buffer;
-  private RdmaBuffer buf;
+  private HpnlBuffer buffer;
+  private HpnlBuffer buf;
   private int count = 0;
   private Connection connection = null;
   Map<Connection, RDMATServer.FrameBuffer> map=new HashMap<>();

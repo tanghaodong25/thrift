@@ -29,11 +29,6 @@ public class RDMATServer extends  TServer{
         }
     }
 
-
-
-
-
-
     @Override
     public void serve() {
 
@@ -46,7 +41,6 @@ public class RDMATServer extends  TServer{
         ((RDMAServerSocket)serverTransport_).waitshutdown();
         serverTransport_.close();
     }
-
 
     public class FrameBuffer {
         private final Logger LOGGER = LoggerFactory.getLogger(getClass().getName());
@@ -107,7 +101,6 @@ public class RDMATServer extends  TServer{
             }
         }
 
-
         public FrameBuffer(){
             trans_=null;
             selectionKey_ = null;
@@ -140,45 +133,6 @@ public class RDMATServer extends  TServer{
             System.out.println(buffer_.toString()+" inital");
         }
 
-        /**
-         * Give this FrameBuffer a chance to read. The selector loop should have
-         * received a read event for this FrameBuffer.
-         *
-         * @return true if the connection should live on, false if it should be
-         *         closed
-         */
-
-        /**
-         * Give this FrameBuffer a chance to write its output to the final client.
-         */
-
-        /**
-         * Give this FrameBuffer a chance to set its interest to write, once data
-         * has come in.
-         */
-
-        /**
-         * Shut the connection down.
-         */
-
-        /**
-         * After the processor has processed the invocation, whatever thread is
-         * managing invocations should call this method on this FrameBuffer so we
-         * know it's time to start trying to write again. Also, if it turns out that
-         * there actually isn't any data in the response buffer, we'll skip trying
-         * to write and instead go back to reading.
-         */
-
-        /**
-         * Actually invoke the method signified by this FrameBuffer.
-         */
-
-        /**
-         * Perform a read into buffer.
-         *
-         * @return true if the read succeeded, false if there was an error or the
-         *         connection closed.
-         */
         private boolean internalRead() {
             try {
                 if (trans_.read(buffer_) < 0) {
@@ -190,28 +144,14 @@ public class RDMATServer extends  TServer{
                 return false;
             }
         }
-public  ByteBuffer getBuffer_(){
+        public  ByteBuffer getBuffer_(){
             return buffer_;
 }
 
-public void responseReady(){
-    buffer_ = ByteBuffer.wrap(response_.get(), 0, response_.len());
-
+        public void responseReady(){
+            buffer_ = ByteBuffer.wrap(response_.get(), 0, response_.len());
         }
-
-        /**
-         * We're done writing, so reset our interest ops and change state
-         * accordingly.
-         */
-
-        /**
-         * When this FrameBuffer needs to change its select interests and execution
-         * might not be in its select thread, then this method will make sure the
-         * interest change gets done when the select thread wakes back up. When the
-         * current thread is this FrameBuffer's select thread, then it just does the
-         * interest change immediately.
-         */
-    } // FrameBuffer
+    }
 
     public class AsyncFrameBuffer extends FrameBuffer {
         public AsyncFrameBuffer(TNonblockingTransport trans, SelectionKey selectionKey, AbstractNonblockingServer.AbstractSelectThread selectThread) {
@@ -230,12 +170,7 @@ public void responseReady(){
             return outProt_;
         }
 
-
-
-
         public void invoke() {
-
-
             frameTrans_.reset(buffer_.array());
             response_.reset();
             System.out.println(buffer_.toString());
@@ -253,10 +188,6 @@ public void responseReady(){
             } catch (Throwable t) {
                 LOGGER.error("Unexpected throwable while invoking!", t);
             }
-            // This will only be reached when there is a throwable.
         }
     }
-
-
-
 }

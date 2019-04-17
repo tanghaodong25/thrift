@@ -3,7 +3,7 @@ package org.apache.thrift.transport;
 import com.intel.hpnl.core.Connection;
 import com.intel.hpnl.core.CqService;
 import com.intel.hpnl.core.EqService;
-import com.intel.hpnl.core.RdmaBuffer;
+import com.intel.hpnl.core.HpnlBuffer;
 import org.apache.thrift.async.ClientRecvCallback;
 import org.apache.thrift.async.ConnectedCallback;
 import org.apache.thrift.async.ShutdownCallback;
@@ -40,24 +40,22 @@ public class RDMASocket extends RDMATransport {
 
     }
 
-
     private void connect(){
-        eqService = new EqService(ip, port, 1, 32, false).init();
-        cqService = new CqService(eqService, eqService.getNativeHandle()).init();
+        eqService = new EqService(1, 32, false).init();
+        cqService = new CqService(eqService).init();
         transport=this;
-       conList = new CopyOnWriteArrayList<Connection>();
+        conList = new CopyOnWriteArrayList<Connection>();
         connectedCallback = new ConnectedCallback(conList, false);
         shutdownCallback = new ShutdownCallback();
-        RdmaBuffer buffer = eqService.getRmaBuffer(4096*1024);
-        clientRecvCallback = new ClientRecvCallback(false, buffer,transport);
+        HpnlBuffer buffer = eqService.getRmaBuffer(4096*1024);
+        clientRecvCallback = new ClientRecvCallback(false, buffer, transport);
         eqService.setConnectedCallback(connectedCallback);
         eqService.setRecvCallback(clientRecvCallback);
         eqService.setSendCallback(null);
         eqService.setShutdownCallback(shutdownCallback);
         eqService.initBufferPool(32, 65536, 32);
+        eqService.connect(this.ip, this.port, 0);
         cqService.start();
-        eqService.start();
-
     }
 
     @Override
@@ -68,10 +66,6 @@ public class RDMASocket extends RDMATransport {
     }
 
     public void open(){
-
-        eqService.waitToConnected();
-        System.out.println(conList.size());
-
     }
 
     public void close(){
@@ -84,13 +78,6 @@ public class RDMASocket extends RDMATransport {
 
     @Override
     public int read(byte[] buf, int off, int len) throws TTransportException {
-//        System.out.println("read rdmabyte"+" "+len);
-//        RdmaBuffer rdmaBuffer=eqService.getRecvBuffer(1024*(len+1));
-//        ClientRecvCallback recvCallback = new ClientRecvCallback(false, rdmaBuffer);
-//        ClientReadCallback readCallback = new ClientReadCallback();
-//        eqService.setRecvCallback(recvCallback);
-//        eqService.setReadCallback(readCallback);
-//        eqService.setShutdownCallback(shutdownCallback);
         return len+1;
     }
 
@@ -99,9 +86,9 @@ public class RDMASocket extends RDMATransport {
         ByteBuffer buffer=ByteBuffer.wrap(buf,off,len);
         System.out.println("wrdbuffer");
         for (Connection con:conList) {
-            RdmaBuffer rdmaBuffer = con.takeSendBuffer(true);
+            HpnlBuffer rdmaBuffer = con.takeSendBuffer(true);
             rdmaBuffer.put(buffer, (byte)0, 10);
-            con.send(rdmaBuffer.remaining(), rdmaBuffer.getRdmaBufferId());
+            con.send(rdmaBuffer.remaining(), rdmaBuffer.getBufferId());
         }
 
     }
@@ -124,12 +111,6 @@ public class RDMASocket extends RDMATransport {
 
     @Override
     public int read(ByteBuffer buffer) throws IOException {
-//        System.out.println("read buffer");
-//        RdmaBuffer rdmaBuffer=eqService.getRecvBuffer(1024*4096);
-//        ClientRecvCallback recvCallback = new ClientRecvCallback(false, rdmaBuffer);
-//        eqService.setRecvCallback(recvCallback);
-//        eqService.setSendCallback(null);
-//        eqService.setShutdownCallback(shutdownCallback);
         return -1;
     }
 
@@ -138,11 +119,10 @@ public class RDMASocket extends RDMATransport {
         System.out.println("buffer write");
         Charset charset = Charset.forName("UTF-8");
         System.out.println(new String(buffer.array(),charset));
-//        buffer=ByteBuffer.wrap(new String("zhang").getBytes());
         for (Connection con:conList) {
-            RdmaBuffer rdmaBuffer = con.takeSendBuffer(true);
+            HpnlBuffer rdmaBuffer = con.takeSendBuffer(true);
             rdmaBuffer.put(buffer, (byte)0, 10);
-             con.send(rdmaBuffer.remaining(), rdmaBuffer.getRdmaBufferId());
+            con.send(rdmaBuffer.remaining(), rdmaBuffer.getBufferId());
         }
         return 0;
     }

@@ -1,10 +1,6 @@
-package user;
+import org.apache.thrift.async.AsyncMethodCallback;
 
-import async.AsyncMethodCallback;
-import transport.TException;
-
-public class HelloServerImp implements HelloServer.AsyncIface {
-
+public class HelloServerImp implements user.HelloServer.AsyncIface {
 
 //    public String sayString(String param) throws TException {
 //        return "hihi+"+param;
