@@ -62,7 +62,7 @@ public abstract class TExtensibleServlet extends HttpServlet {
   /**
    * Returns the appropriate {@link TProcessor}. This will be called <b>once</b> just
    * after the {@link #init()} method
-   * 
+   *
    * @return the appropriate {@link TProcessor}
    */
   protected abstract TProcessor getProcessor();
@@ -70,7 +70,7 @@ public abstract class TExtensibleServlet extends HttpServlet {
   /**
    * Returns the appropriate in {@link TProtocolFactory}. This will be called
    * <b>once</b> just after the {@link #init()} method
-   * 
+   *
    * @return the appropriate in {@link TProtocolFactory}
    */
   protected abstract TProtocolFactory getInProtocolFactory();
@@ -78,7 +78,7 @@ public abstract class TExtensibleServlet extends HttpServlet {
   /**
    * Returns the appropriate out {@link TProtocolFactory}. This will be called
    * <b>once</b> just after the {@link #init()} method
-   * 
+   *
    * @return the appropriate out {@link TProtocolFactory}
    */
   protected abstract TProtocolFactory getOutProtocolFactory();

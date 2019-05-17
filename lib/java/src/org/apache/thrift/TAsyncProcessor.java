@@ -18,7 +18,8 @@
  */
 package org.apache.thrift;
 
-import org.apache.thrift.server.AbstractNonblockingServer.AsyncFrameBuffer;
+
+import org.apache.thrift.server.RDMATServer;
 
 public interface TAsyncProcessor {
   /**
@@ -29,5 +30,5 @@ public interface TAsyncProcessor {
    *
    * @throws TException if the frame cannot be processed
    */
-  public void process(final AsyncFrameBuffer fb) throws TException;
+  public void process(final RDMATServer.AsyncFrameBuffer fb) throws TException;
 }
