@@ -122,21 +122,21 @@ public:
    * Init and close methods
    */
 
-  void init_generator() override;
-  void close_generator() override;
+  void init_generator();
+  void close_generator();
 
-  void generate_consts(std::vector<t_const*> consts) override;
+  void generate_consts(std::vector<t_const*> consts);
 
   /**
    * Program-level generation functions
    */
 
-  void generate_typedef(t_typedef* ttypedef) override;
-  void generate_enum(t_enum* tenum) override;
-  void generate_struct(t_struct* tstruct) override;
+  void generate_typedef(t_typedef* ttypedef);
+  void generate_enum(t_enum* tenum);
+  void generate_struct(t_struct* tstruct);
   void generate_union(t_struct* tunion);
-  void generate_xception(t_struct* txception) override;
-  void generate_service(t_service* tservice) override;
+  void generate_xception(t_struct* txception);
+  void generate_service(t_service* tservice);
 
   void print_const_value(std::ostream& out,
                          std::string name,
@@ -3097,7 +3097,7 @@ void t_java_generator::generate_service_client(t_service* tservice) {
 }
 
 void t_java_generator::generate_service_async_client(t_service* tservice) {
-  string extends = "org.apache.thrift.async.TAsyncClient";
+  string extends = "org.apache.thrift.async.RDMATAsyncClient";
   string extends_client = "";
   if (tservice->get_extends() != NULL) {
     extends = type_name(tservice->get_extends()) + ".AsyncClient";
@@ -3110,11 +3110,11 @@ void t_java_generator::generate_service_async_client(t_service* tservice) {
   // Factory method
   indent(f_service_) << "public static class Factory implements "
                         "org.apache.thrift.async.TAsyncClientFactory<AsyncClient> {" << endl;
-  indent(f_service_) << "  private org.apache.thrift.async.TAsyncClientManager clientManager;"
+  indent(f_service_) << "  private org.apache.thrift.async.RDMATAsyncClientManager clientManager;"
                      << endl;
   indent(f_service_) << "  private org.apache.thrift.protocol.TProtocolFactory protocolFactory;"
                      << endl;
-  indent(f_service_) << "  public Factory(org.apache.thrift.async.TAsyncClientManager "
+  indent(f_service_) << "  public Factory(org.apache.thrift.async.RDMATAsyncClientManager "
                         "clientManager, org.apache.thrift.protocol.TProtocolFactory "
                         "protocolFactory) {" << endl;
   indent(f_service_) << "    this.clientManager = clientManager;" << endl;
@@ -3129,7 +3129,7 @@ void t_java_generator::generate_service_async_client(t_service* tservice) {
   indent(f_service_) << "}" << endl << endl;
 
   indent(f_service_) << "public AsyncClient(org.apache.thrift.protocol.TProtocolFactory "
-                        "protocolFactory, org.apache.thrift.async.TAsyncClientManager "
+                        "protocolFactory, org.apache.thrift.async.RDMATAsyncClientManager "
                         "clientManager, org.apache.thrift.transport.TNonblockingTransport "
                         "transport) {" << endl;
   indent(f_service_) << "  super(protocolFactory, clientManager, transport);" << endl;
@@ -3158,11 +3158,11 @@ void t_java_generator::generate_service_async_client(t_service* tservice) {
     // Main method body
     indent(f_service_) << "public " << function_signature_async(*f_iter, false)
                        << " throws org.apache.thrift.TException {" << endl;
-    indent(f_service_) << "  checkReady();" << endl;
+    //indent(f_service_) << "  checkReady();" << endl;
     indent(f_service_) << "  " << funclassname << " method_call = new " + funclassname + "("
                        << async_argument_list(*f_iter, arg_struct, ret_type)
                        << ", this, ___protocolFactory, ___transport);" << endl;
-    indent(f_service_) << "  this.___currentMethod = method_call;" << endl;
+    //indent(f_service_) << "  this.___currentMethod = method_call;" << endl;
     indent(f_service_) << "  ___manager.call(method_call);" << endl;
     indent(f_service_) << "}" << endl;
 
@@ -3170,7 +3170,7 @@ void t_java_generator::generate_service_async_client(t_service* tservice) {
 
     // TAsyncMethod object for this function call
     indent(f_service_) << "public static class " + funclassname
-                          + " extends org.apache.thrift.async.TAsyncMethodCall<"
+                          + " extends org.apache.thrift.async.RDMATAsyncMethodCall<"
                           + type_name((*f_iter)->get_returntype(), true) + "> {" << endl;
     indent_up();
 
@@ -3186,7 +3186,7 @@ void t_java_generator::generate_service_async_client(t_service* tservice) {
     // Constructor
     indent(f_service_) << "public " + funclassname + "("
                           + async_argument_list(*f_iter, arg_struct, ret_type, true)
-                       << ", org.apache.thrift.async.TAsyncClient client, "
+                       << ", org.apache.thrift.async.RDMATAsyncClient client, "
                           "org.apache.thrift.protocol.TProtocolFactory protocolFactory, "
                           "org.apache.thrift.transport.TNonblockingTransport transport) throws "
                           "org.apache.thrift.TException {" << endl;
@@ -3234,9 +3234,10 @@ void t_java_generator::generate_service_async_client(t_service* tservice) {
     indent_up();
     f_service_
         << indent()
-        << "if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {"
-        << endl << indent() << "  throw new java.lang.IllegalStateException(\"Method call not finished!\");"
-        << endl << indent() << "}" << endl << indent()
+        //<< "if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {"
+        //<< "{"
+        //<< endl << indent() << "  throw new java.lang.IllegalStateException(\"Method call not finished!\");"
+        //<< endl << indent() << "}" << endl << indent()
         << "org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new "
            "org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());" << endl
         << indent() << "org.apache.thrift.protocol.TProtocol prot = "
@@ -3445,7 +3446,7 @@ void t_java_generator::generate_process_async_function(t_service* tservice, t_fu
   indent(f_service_) << "}" << endl << endl;
 
   indent(f_service_) << "public org.apache.thrift.async.AsyncMethodCallback<" << resulttype
-                     << "> getResultHandler(final org.apache.thrift.server.AbstractNonblockingServer.AsyncFrameBuffer fb, final int seqid) {" << endl;
+                     << "> getResultHandler(final org.apache.thrift.server.RDMATServer.AsyncFrameBuffer fb, final int seqid) {" << endl;
   indent_up();
   indent(f_service_) << "final org.apache.thrift.AsyncProcessFunction fcall = this;" << endl;
   indent(f_service_) << "return new org.apache.thrift.async.AsyncMethodCallback<" << resulttype
@@ -3474,8 +3475,8 @@ void t_java_generator::generate_process_async_function(t_service* tservice, t_fu
     indent_up();
     f_service_ << indent()
                << "_LOGGER.error(\"TTransportException writing to internal frame buffer\", e);"
-               << endl
-               << indent() << "fb.close();" << endl;
+               << endl;
+               //<< indent() << "fb.close();" << endl;
     indent_down();
     indent(f_service_) << "} catch (java.lang.Exception e) {" << endl;
     indent_up();
@@ -3496,8 +3497,8 @@ void t_java_generator::generate_process_async_function(t_service* tservice, t_fu
                        << endl;
     indent_up();
 
-    f_service_ << indent() << "_LOGGER.error(\"TTransportException inside handler\", e);" << endl
-               << indent() << "fb.close();" << endl;
+    f_service_ << indent() << "_LOGGER.error(\"TTransportException inside handler\", e);" << endl;
+               //<< indent() << "fb.close();" << endl;
 
     indent_down();
     indent(f_service_) << "} else {" << endl;
@@ -3537,7 +3538,7 @@ void t_java_generator::generate_process_async_function(t_service* tservice, t_fu
     f_service_ << "if (e instanceof org.apache.thrift.transport.TTransportException) {" << endl;
     indent_up();
     f_service_ << indent() << "_LOGGER.error(\"TTransportException inside handler\", e);" << endl
-               << indent() << "fb.close();" << endl
+               //<< indent() << "fb.close();" << endl
                << indent() << "return;" << endl;
     indent_down();
     indent(f_service_) << "} else if (e instanceof org.apache.thrift.TApplicationException) {"
@@ -3562,7 +3563,7 @@ void t_java_generator::generate_process_async_function(t_service* tservice, t_fu
                << indent() << "} catch (java.lang.Exception ex) {" << endl
                << indent() << "  _LOGGER.error(\"Exception writing to internal frame buffer\", ex);"
                << endl
-               << indent() << "  fb.close();" << endl
+               //<< indent() << "  fb.close();" << endl
                << indent() << "}" << endl;
   }
   indent_down();
@@ -4652,7 +4653,9 @@ string t_java_generator::constant_name(string name) {
 
   bool is_first = true;
   bool was_previous_char_upper = false;
-  for (char character : name) {
+  for (string::iterator iter = name.begin(); iter != name.end(); ++iter) {
+    string::value_type character = (*iter);
+
     bool is_upper = isupper(character);
 
     if (is_upper && !is_first && !was_previous_char_upper) {
